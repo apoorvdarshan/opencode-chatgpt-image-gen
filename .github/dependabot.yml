@@ -5,9 +5,9 @@ updates:
     schedule:
       interval: weekly
     ignore:
-      # The 1.x package does not export the V2 promise SDK used here.
+      # Keep the V2 beta pin until migration to @opencode/plugin. Stable
+      # versions of this package don't export the V2 promise SDK.
       - dependency-name: "@opencode-ai/plugin"
-        versions: [">= 1.0.0"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
