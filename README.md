@@ -1,12 +1,12 @@
-# opencode-image-gen
+# OpenCode ChatGPT Image Gen
 
-[![CI](https://github.com/mcostasilva/opencode-image-gen/actions/workflows/ci.yml/badge.svg)](https://github.com/mcostasilva/opencode-image-gen/actions/workflows/ci.yml)
+[![CI](https://github.com/apoorvdarshan/opencode-chatgpt-image-gen/actions/workflows/ci.yml/badge.svg)](https://github.com/apoorvdarshan/opencode-chatgpt-image-gen/actions/workflows/ci.yml)
 
-OpenCode V2 plugin that adds `generate_image` and `edit_image` tools through **OpenAI GPT Image** or **xAI Grok Imagine**. Both reuse connections configured with `/connect`.
+Generate and edit images in OpenCode V2 with **GPT Image 2.6 Sunburst** through an eligible ChatGPT subscription. This MIT-licensed derivative of [Marcio Costa Silva’s `opencode-image-gen`](https://github.com/mcostasilva/opencode-image-gen) pins the OpenAI connector to Sunburst and retains the optional **xAI Grok Imagine** connector. Both reuse connections configured with `/connect`.
 
 | Connector | Model | Authentication | Billing |
 | --- | --- | --- | --- |
-| `openai` | `gpt-image-2` | ChatGPT/Codex OAuth | Connected ChatGPT subscription |
+| `openai` | `gpt-image-2.6-sunburst` | ChatGPT/Codex OAuth | Connected ChatGPT subscription |
 | `xai` | `grok-imagine-image-2.0` | SuperGrok OAuth or xAI API key | Connected subscription or API credits, according to the credential type |
 
 ## Requirements
@@ -30,7 +30,7 @@ Add the GitHub package to `plugins` in `~/.config/opencode/opencode.jsonc` or a 
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
     {
-      "package": "github:mcostasilva/opencode-image-gen",
+      "package": "github:apoorvdarshan/opencode-chatgpt-image-gen",
       "options": {
         "fallbackConnector": "openai",
       },
@@ -39,7 +39,7 @@ Add the GitHub package to `plugins` in `~/.config/opencode/opencode.jsonc` or a 
 }
 ```
 
-The package is not yet published to npm. After it is published, `"opencode-image-gen"` can be used as the package value.
+If you already use the upstream plugin, replace its entry; both plugins register the same tool names. This package is distributed through GitHub, not npm.
 
 For local development, clone the repository and point OpenCode at its absolute directory:
 
@@ -48,7 +48,7 @@ For local development, clone the repository and point OpenCode at its absolute d
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
     {
-      "package": "/absolute/path/to/opencode-image-gen",
+      "package": "/absolute/path/to/opencode-chatgpt-image-gen",
       "options": {
         "fallbackConnector": "openai",
       },
@@ -57,7 +57,7 @@ For local development, clone the repository and point OpenCode at its absolute d
 }
 ```
 
-Restart OpenCode after changing plugins. If OpenAI is not connected yet:
+If OpenAI is not connected yet:
 
 ```text
 /connect
@@ -75,7 +75,7 @@ Set `fallbackConnector` to use another configured connector when the current pro
 {
   "plugins": [
     {
-      "package": "opencode-image-gen",
+      "package": "github:apoorvdarshan/opencode-chatgpt-image-gen",
       "options": { "fallbackConnector": "openai" },
     },
   ],
@@ -99,7 +99,7 @@ The plugin reuses your active xAI connection, including SuperGrok subscription O
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
     {
-      "package": "github:mcostasilva/opencode-image-gen",
+      "package": "github:apoorvdarshan/opencode-chatgpt-image-gen",
       "options": { "fallbackConnector": "xai" },
     },
   ],
@@ -176,7 +176,7 @@ Directories and reference paths resolve from the active session's working direct
 1. Before model dispatch, the plugin reads the effective request provider and resolves its image connector or the configured fallback through `ctx.integration.connection`.
 2. It narrows the direct tool schemas to that connector's arguments, with a fixed `connector` value.
 3. At execution, it validates the supplied arguments, reads the session working directory, and resolves the pinned connector's credentials again. It does not switch connectors mid-call.
-4. OpenAI sends a Responses request to ChatGPT's Codex backend with the hosted `image_generation` tool (`gpt-image-2`). xAI sends a JSON request to `https://api.x.ai/v1/images/generations` or `/edits` using `grok-imagine-image-2.0` and base64 output.
+4. OpenAI sends a Responses request to ChatGPT's Codex backend with the hosted `image_generation` tool pinned to `gpt-image-2.6-sunburst`. xAI sends a JSON request to `https://api.x.ai/v1/images/generations` or `/edits` using `grok-imagine-image-2.0` and base64 output.
 5. The returned image is written inside the session working directory and returned as OpenCode file content so the model can inspect it.
 
 Credentials are used only for connector requests and are not added to tool output. Provider HTTP errors include the status and verbatim response body; Codex stream failures preserve the full error event, including codes and messages. Connection-resolution errors are also surfaced to the model. Whenever fallback is selected, the model context and tool descriptions identify the fallback connector and the reason. Result metadata identifies the connector, model, and billing mode (`subscription` or `api`).
@@ -186,7 +186,7 @@ Credentials are used only for connector requests and are not added to tool outpu
 - This is an unofficial third-party plugin, not affiliated with OpenAI, xAI, or OpenCode.
 - Subscription image generation uses the undocumented Codex endpoint OpenCode already uses for ChatGPT chat (`https://chatgpt.com/backend-api/codex/responses`). It can change without notice.
 - Pixel-precise mask inpainting is not supported on the OAuth path.
-- Image availability and usage limits depend on the connected ChatGPT account.
+- Image availability and usage limits depend on the connected ChatGPT account. If the subscription endpoint rejects Sunburst, the tool reports the error instead of silently switching to another model, provider, or billing method.
 
 Use must comply with OpenAI's [Terms of Use](https://openai.com/policies/row-terms-of-use/) and [Usage Policies](https://openai.com/policies/usage-policies/).
 

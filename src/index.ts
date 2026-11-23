@@ -6,7 +6,7 @@ import { prepareImageTools } from "./tool-context.ts"
 
 // Keep SDK imports type-only: the host supplies its own Effect runtime.
 export default {
-  id: "opencode-image-gen",
+  id: "opencode-chatgpt-image-gen",
   async setup(ctx) {
     const config = parsePluginConfig(ctx.options)
     await ctx.tool.transform((tools) => {

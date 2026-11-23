@@ -2,11 +2,11 @@
 
 ## Supported versions
 
-Until the first stable release, security fixes are applied to the latest release and the `master` branch.
+Until the first stable release, security fixes are applied to the `main` branch.
 
 ## Reporting a vulnerability
 
-Please report vulnerabilities privately through [GitHub Security Advisories](https://github.com/mcostasilva/opencode-image-gen/security/advisories/new). Do not open a public issue for credential exposure, path traversal, or other security-sensitive findings.
+Please report vulnerabilities privately through [GitHub Security Advisories](https://github.com/apoorvdarshan/opencode-chatgpt-image-gen/security/advisories/new). Do not open a public issue for credential exposure, path traversal, or other security-sensitive findings.
 
 Include the affected version, impact, and minimal reproduction details. Never include live OAuth tokens, API keys, or private image contents.
 

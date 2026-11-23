@@ -2,7 +2,7 @@
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
     {
-      "package": "/absolute/path/to/opencode-image-gen",
+      "package": "/absolute/path/to/opencode-chatgpt-image-gen",
       "options": {
         // Use "xai" for Grok Imagine via an xAI API key configured with /connect.
         // The current session's supported connector takes precedence over this fallback.

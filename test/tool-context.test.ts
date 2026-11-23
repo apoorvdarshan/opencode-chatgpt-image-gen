@@ -63,7 +63,7 @@ test("OpenAI requests expose only OpenAI arguments for both tools", async () => 
     expect(input.properties.connector?.enum).toEqual(["openai"])
     expect(input.required).toContain("connector")
     expect(input.additionalProperties).toBe(false)
-    expect(event.tools[name]!.description).toContain("gpt-image-2")
+    expect(event.tools[name]!.description).toContain("gpt-image-2.6-sunburst")
   }
   expect(event.tools.execute!.description).toBe("Run code.")
 })

@@ -19,7 +19,7 @@ const sse = (events: unknown[]): string =>
 test("builds a generate request without input images", () => {
   const request = buildCodexRequest(options, "generate", [], "session-1")
   expect(request.model).toBe("gpt-6.1-sol")
-  expect(request.tools[0]?.model).toBe("gpt-image-2")
+  expect(request.tools[0]?.model).toBe("gpt-image-2.6-sunburst")
   expect(request.tool_choice).toEqual({ type: "image_generation" })
   expect(request.input[0]?.content).toEqual([{ type: "input_text", text: "Generate this image: a red cube" }])
 })
@@ -32,7 +32,7 @@ test("builds an edit request with input images", () => {
     "session-2",
   )
   expect(request.model).toBe("gpt-6.1-sol")
-  expect(request.tools[0]?.model).toBe("gpt-image-2")
+  expect(request.tools[0]?.model).toBe("gpt-image-2.6-sunburst")
   expect(request.tool_choice).toEqual({ type: "image_generation" })
   expect(request.input[0]?.content).toEqual([
     { type: "input_text", text: "Edit the provided image(s): make it night" },

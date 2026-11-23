@@ -1,20 +1,20 @@
 {
-  "name": "opencode-image-gen",
+  "name": "opencode-chatgpt-image-gen",
   "version": "0.1.0",
-  "description": "OpenCode V2 plugin for GPT Image via ChatGPT/Codex OAuth and Grok Imagine via the xAI API.",
+  "description": "Generate and edit images in OpenCode V2 with GPT Image 2.6 Sunburst via ChatGPT subscription OAuth.",
   "author": "Marcio Costa Silva",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mcostasilva/opencode-image-gen.git"
+    "url": "git+https://github.com/apoorvdarshan/opencode-chatgpt-image-gen.git"
   },
-  "homepage": "https://github.com/mcostasilva/opencode-image-gen#readme",
+  "homepage": "https://github.com/apoorvdarshan/opencode-chatgpt-image-gen#readme",
   "bugs": {
-    "url": "https://github.com/mcostasilva/opencode-image-gen/issues"
+    "url": "https://github.com/apoorvdarshan/opencode-chatgpt-image-gen/issues"
   },
   "keywords": [
     "opencode",
     "opencode-plugin",
-    "gpt-image-2",
+    "gpt-image-2.6-sunburst",
     "image-generation",
     "openai",
     "chatgpt",
