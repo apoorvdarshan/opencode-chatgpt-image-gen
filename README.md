@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/apoorvdarshan/opencode-chatgpt-image-gen/actions/workflows/ci.yml/badge.svg)](https://github.com/apoorvdarshan/opencode-chatgpt-image-gen/actions/workflows/ci.yml)
 
-Generate and edit images in OpenCode V2 with **GPT Image 2.6 Sunburst** through an eligible ChatGPT subscription. This MIT-licensed derivative of [Marcio Costa Silva’s `opencode-image-gen`](https://github.com/mcostasilva/opencode-image-gen) pins the OpenAI connector to Sunburst and retains the optional **xAI Grok Imagine** connector. Both reuse connections configured with `/connect`.
+Generate and edit images in OpenCode V2 through an eligible **ChatGPT subscription**, without a separate OpenAI API key. **GPT Image 2.6 Sunburst** is the default, and you can select a different GPT Image model. This MIT-licensed derivative of [Marcio Costa Silva’s `opencode-image-gen`](https://github.com/mcostasilva/opencode-image-gen) also retains the optional **xAI Grok Imagine** connector. Both reuse connections configured with `/connect`.
 
 | Connector | Model | Authentication | Billing |
 | --- | --- | --- | --- |
-| `openai` | `gpt-image-2.6-sunburst` | ChatGPT/Codex OAuth | Connected ChatGPT subscription |
+| `openai` | `gpt-image-2.6-sunburst` by default; configurable | ChatGPT/Codex OAuth | Connected ChatGPT subscription |
 | `xai` | `grok-imagine-image-2.0` | SuperGrok OAuth or xAI API key | Connected subscription or API credits, according to the credential type |
 
 ## Requirements
@@ -89,6 +89,26 @@ Omit the option or set it to `false` to fail instead of falling back:
 ```
 
 The OpenAI connector requires an active ChatGPT OAuth connection. API-key credentials are rejected with guidance to use `/connect`.
+
+### Choose a GPT Image model
+
+Omit `openaiModel` to use the plugin default. To switch models for both `generate_image` and `edit_image`, add the model ID to this plugin's `options` in `opencode.json(c)`:
+
+```jsonc
+{
+  "plugins": [
+    {
+      "package": "github:apoorvdarshan/opencode-chatgpt-image-gen",
+      "options": {
+        "fallbackConnector": "openai",
+        "openaiModel": "gpt-image-2.6-flare"
+      }
+    }
+  ]
+}
+```
+
+[Sunburst](https://developers.openai.com/api/docs/models/gpt-image-2.6-sunburst) is aimed at detailed compositions and edits; [Flare](https://developers.openai.com/api/docs/models/gpt-image-2.6-flare) is aimed at faster iteration. Your ChatGPT subscription and its Codex endpoint must support the selected model; availability in the public Image API alone does not imply subscription access. An unsupported model produces the upstream error. The plugin does not silently switch to a different model or billing method, and this setting does not affect the xAI connector.
 
 ### Using Grok Imagine
 
@@ -176,7 +196,7 @@ Directories and reference paths resolve from the active session's working direct
 1. Before model dispatch, the plugin reads the effective request provider and resolves its image connector or the configured fallback through `ctx.integration.connection`.
 2. It narrows the direct tool schemas to that connector's arguments, with a fixed `connector` value.
 3. At execution, it validates the supplied arguments, reads the session working directory, and resolves the pinned connector's credentials again. It does not switch connectors mid-call.
-4. OpenAI sends a Responses request to ChatGPT's Codex backend with the hosted `image_generation` tool pinned to `gpt-image-2.6-sunburst`. xAI sends a JSON request to `https://api.x.ai/v1/images/generations` or `/edits` using `grok-imagine-image-2.0` and base64 output.
+4. OpenAI sends a Responses request to ChatGPT's Codex backend with the hosted `image_generation` tool using the configured OpenAI image model. xAI sends a JSON request to `https://api.x.ai/v1/images/generations` or `/edits` using `grok-imagine-image-2.0` and base64 output.
 5. The returned image is written inside the session working directory and returned as OpenCode file content so the model can inspect it.
 
 Credentials are used only for connector requests and are not added to tool output. Provider HTTP errors include the status and verbatim response body; Codex stream failures preserve the full error event, including codes and messages. Connection-resolution errors are also surfaced to the model. Whenever fallback is selected, the model context and tool descriptions identify the fallback connector and the reason. Result metadata identifies the connector, model, and billing mode (`subscription` or `api`).

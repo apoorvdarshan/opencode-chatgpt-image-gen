@@ -1,6 +1,7 @@
 import type { Context } from "@opencode-ai/plugin/promise/plugin"
 import type { Result, ToolContext } from "@opencode-ai/plugin/promise/tool"
 import path from "node:path"
+import type { PluginConfig } from "./config.ts"
 import { resolveConnector } from "./connectors.ts"
 import { ConnectorUnavailableError } from "./errors.ts"
 import {
@@ -17,6 +18,7 @@ export const runImageTool = async (
   tool: ToolContext,
   action: ImageAction,
   input: unknown,
+  config: PluginConfig = {},
 ): Promise<Result> => {
   const { connector: selected, options } = parseImageToolInput(input, action)
   const session = await ctx.session.get({ sessionID: tool.sessionID })
@@ -25,7 +27,7 @@ export const runImageTool = async (
   const outputPath = resolveOutputPath(root, options.directory, options.fileName, options.outputFormat)
   // Use the connector advertised for this request, not a newly selected fallback.
   // The next model request will resolve fallback again with its matching schema.
-  const connector = await resolveConnector(ctx.integration, selected).catch((error) => {
+  const connector = await resolveConnector(ctx.integration, selected, config).catch((error) => {
     if (!(error instanceof ConnectorUnavailableError)) throw error
     throw new Error(`The selected ${selected} image connection is no longer available. Retry using the refreshed tool schema. ${error.message}`)
   })

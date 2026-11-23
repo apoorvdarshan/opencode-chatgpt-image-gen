@@ -21,3 +21,18 @@ test("rejects unknown fallback connectors", () => {
     "fallbackConnector must be false or one of: openai",
   )
 })
+
+test("accepts an OpenAI image model override with or without a fallback", () => {
+  const openaiModel = "gpt-image-2.6-flare"
+  expect(parsePluginConfig({ openaiModel })).toEqual({ openaiModel })
+  expect(parsePluginConfig({ fallbackConnector: "openai", openaiModel })).toEqual({
+    fallbackConnector: "openai",
+    openaiModel,
+  })
+})
+
+test("rejects invalid OpenAI image model IDs", () => {
+  for (const openaiModel of [null, 26, "", "gpt-6.1-sol", "openai/gpt-image-2", "gpt-image-2\n"]) {
+    expect(() => parsePluginConfig({ openaiModel })).toThrow("openaiModel must be a GPT Image model ID")
+  }
+})

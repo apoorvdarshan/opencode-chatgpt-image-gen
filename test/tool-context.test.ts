@@ -224,10 +224,13 @@ test("plugin registers direct image tools and narrows them through the actual co
   const tools: Info[] = []
   let hook: ((event: SessionContext) => Promise<void>) | undefined
   const ctx = {
-    options: { fallbackConnector: "openai" },
+    options: { fallbackConnector: "openai", openaiModel: "gpt-image-2.6-flare" },
     integration: credentials({ openai: oauth }),
     tool: { transform: async (callback: (editor: { add: (tool: Info) => void }) => void) => callback({ add: (tool) => { tools.push(tool) } }) },
-    session: { hook: async (name: string, callback: typeof hook) => { expect(name).toBe("context"); hook = callback } },
+    session: {
+      get: async () => ({ location: { directory: "/project" } }),
+      hook: async (name: string, callback: typeof hook) => { expect(name).toBe("context"); hook = callback },
+    },
   } as unknown as Context
   await plugin.setup(ctx)
   expect(tools.map((tool) => tool.name)).toEqual(["generate_image", "edit_image"])
@@ -238,4 +241,19 @@ test("plugin registers direct image tools and narrows them through the actual co
   await hook!(event)
   expect(schema(event).properties.connector?.enum).toEqual(["openai"])
   expect(schema(event).properties).not.toHaveProperty("aspect_ratio")
+  for (const name of ["generate_image", "edit_image"]) {
+    expect(event.tools[name]!.description).toContain("gpt-image-2.6-flare")
+  }
+  let calls = 0
+  globalThis.fetch = (async (_url, init) => {
+    calls++
+    const body = JSON.parse(String(init?.body))
+    expect(body.tools[0].model).toBe("gpt-image-2.6-flare")
+    expect(body.model).toBe("gpt-6.1-sol")
+    return new Response("model unavailable", { status: 400 })
+  }) as typeof fetch
+  await expect(tools[0]!.execute({
+    connector: "openai", prompt: "test", directory: ".", file_name: "test.png",
+  }, { sessionID: "session", progress: async () => {} } as unknown as ToolContext)).rejects.toThrow("model unavailable")
+  expect(calls).toBe(1)
 })

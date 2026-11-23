@@ -7,6 +7,7 @@
         // Use "xai" for Grok Imagine via an xAI API key configured with /connect.
         // The current session's supported connector takes precedence over this fallback.
         "fallbackConnector": "openai"
+        // Optional: set "openaiModel" to a GPT Image model supported by your subscription.
       }
     }
   ]

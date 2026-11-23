@@ -4,6 +4,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # The 1.x package does not export the V2 promise SDK used here.
+      - dependency-name: "@opencode-ai/plugin"
+        versions: [">= 1.0.0"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

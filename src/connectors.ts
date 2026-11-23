@@ -1,9 +1,10 @@
 import type { Context } from "@opencode-ai/plugin/promise/plugin"
 import { resolveOpenAIOauth, resolveXaiAuth } from "./auth.ts"
 import { buildXaiRequest, generateWithXai, XAI_IMAGE_MODEL } from "./xai.ts"
-import { buildCodexRequest, generateWithCodex, IMAGE_MODEL } from "./codex.ts"
+import { buildCodexRequest, generateWithCodex } from "./codex.ts"
 import {
   CONNECTOR_IDS,
+  DEFAULT_OPENAI_MODEL,
   connectorCandidates,
   type ConnectorId,
   type PluginConfig,
@@ -34,9 +35,9 @@ interface ImageConnector {
   }>
 }
 
-const openai: ImageConnector = {
+const openai = (model: string): ImageConnector => ({
   id: "openai",
-  model: IMAGE_MODEL,
+  model,
   async resolve(integration) {
     const auth = await resolveOpenAIOauth(integration)
     return {
@@ -45,12 +46,12 @@ const openai: ImageConnector = {
         if (options.aspectRatio !== undefined || options.resolution !== undefined) {
           throw new Error("aspect_ratio and resolution are only supported by the xAI image connector.")
         }
-        const request = buildCodexRequest(options, action, imageDataUrls, requestId)
+        const request = buildCodexRequest(options, action, imageDataUrls, requestId, model)
         return generateWithCodex(auth, request, requestId)
       },
     }
   },
-}
+})
 
 const xai: ImageConnector = {
   id: "xai",
@@ -67,8 +68,6 @@ const xai: ImageConnector = {
   },
 }
 
-const connectors: Readonly<Record<ConnectorId, ImageConnector>> = { openai, xai }
-
 const unavailableMessage = (provider: string | undefined): string => {
   const current = provider ? `"${provider}"` : "the current session"
   return (
@@ -77,8 +76,12 @@ const unavailableMessage = (provider: string | undefined): string => {
   )
 }
 
-export const resolveConnector = async (integration: Context["integration"], id: ConnectorId) => {
-  const connector = connectors[id]
+export const resolveConnector = async (
+  integration: Context["integration"],
+  id: ConnectorId,
+  config: PluginConfig = {},
+) => {
+  const connector = id === "openai" ? openai(config.openaiModel ?? DEFAULT_OPENAI_MODEL) : xai
   const resolved = await connector.resolve(integration)
   return {
     id,
@@ -110,7 +113,7 @@ export const resolveImageConnector = async (
   }
   for (const id of candidates) {
     try {
-      const connector = await resolveConnector(integration, id)
+      const connector = await resolveConnector(integration, id, config)
       return { ...connector, fallback: reasons.length ? { connector: id, reasons: [...reasons] } : undefined }
     } catch (error) {
       if (!(error instanceof ConnectorUnavailableError)) throw error

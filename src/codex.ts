@@ -1,9 +1,9 @@
 import type { CodexAuth, GeneratedImage, ImageAction, ImageOptions } from "./types.ts"
+import { DEFAULT_OPENAI_MODEL } from "./config.ts"
 
 export const CODEX_RESPONSES_URL = "https://chatgpt.com/backend-api/codex/responses"
 // The dispatcher must support ChatGPT/Codex OAuth, independently of the image model.
 export const RESPONSE_MODEL = "gpt-6.1-sol"
-export const IMAGE_MODEL = "gpt-image-2.6-sunburst"
 export const ORIGINATOR = "opencode-image-gen"
 
 interface CodexContentItem {
@@ -20,7 +20,7 @@ export interface CodexRequest {
   input: Array<{ role: "user"; content: CodexContentItem[] }>
   tools: Array<{
     type: "image_generation"
-    model: typeof IMAGE_MODEL
+    model: string
     moderation: "auto"
     output_compression: number
     output_format: string
@@ -46,6 +46,7 @@ export const buildCodexRequest = (
   action: ImageAction,
   imageDataUrls: string[],
   sessionId: string,
+  imageModel: string = DEFAULT_OPENAI_MODEL,
 ): CodexRequest => {
   const content: CodexContentItem[] = [{ type: "input_text", text: userTextFor(action, options.prompt) }]
   for (const image_url of imageDataUrls) {
@@ -61,7 +62,7 @@ export const buildCodexRequest = (
     tools: [
       {
         type: "image_generation",
-        model: IMAGE_MODEL,
+        model: imageModel,
         moderation: "auto",
         output_compression: 100,
         output_format: options.outputFormat,
